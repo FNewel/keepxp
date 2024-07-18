@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"package": "io.github.fnewell.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"XpOnDeath",
+		"XpOnRespawn"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
