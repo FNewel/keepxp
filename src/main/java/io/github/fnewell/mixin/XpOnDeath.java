@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 @Mixin(PlayerEntity.class)
 public class XpOnDeath {
 
-    @Inject(method = "getXpToDrop", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getExperienceToDrop", at = @At("RETURN"), cancellable = true)
     private void noXpToDrop(CallbackInfoReturnable<Integer> info) {
         PlayerEntity player = (PlayerEntity)(Object)this;
 
