@@ -20,6 +20,7 @@ val deps = ModDependencies()
 val mcVersion = stonecutter.current.version
 val mcTitle = property("mod.mc_title").toString()
 val mcDep = property("mod.mc_dep").toString()
+val fapiID = if(stonecutter.eval(mcVersion, ">=1.19.3")) "fabric-api" else "fabric"
 
 version = "${mod.version}+${mcTitle}"
 group = mod.group
@@ -47,8 +48,9 @@ dependencies {
 
     fapi(
         // Add modules from https://github.com/FabricMC/fabric
-        /*"fabric-resource-loader-v0",
         "fabric-lifecycle-events-v1",
+        "fabric-command-api-v2"
+    /*"fabric-resource-loader-v0",
         "fabric-key-binding-api-v1",
         "fabric-command-api-v2",*/
     )
@@ -81,12 +83,14 @@ tasks.processResources {
     inputs.property("name", mod.name)
     inputs.property("version", mod.version)
     inputs.property("mcdep", mcDep)
+    inputs.property("fabric_api_id", fapiID)
 
     val map = mapOf(
         "id" to mod.id,
         "name" to mod.name,
         "version" to mod.version,
-        "mcdep" to mcDep
+        "mcdep" to mcDep,
+        "fabric_api_id" to fapiID
     )
 
     filesMatching("fabric.mod.json") { expand(map) }
