@@ -1,8 +1,3 @@
-- Added fabric apis (lifecycle-events, command-api)
-- Updated fabric api id to check for older versions (fabric vs fabric-api)
-- Added more supported versions (1.19-1.21.4)
-- Added command utils with new commands (/keepxp help, override, status)
-  - Added functionality to force keepxp on for all players (override)
-  - Added functionality to check status - based on default, override, permission (status)
-- Added data utils to save and load override status (so it persists on restart)
-- Updated initializer to check permission api / override data after server startup
+- Updated workflow with publish action (Manually triggered publish)
+- Updated workflow with build and test action (Automatically (or manually) triggered build and test)
+- Added versions.json file to store Minecraft versions
