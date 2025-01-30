@@ -1,0 +1,90 @@
+name: Publish Manually
+
+on:
+  workflow_dispatch:
+
+jobs:
+  extract_jar_files:
+    runs-on: ubuntu-latest
+    outputs:
+      jar_files: ${{ steps.find_jar_files.outputs.jar_files }}
+      workflow_run_id: ${{ steps.get_workflow_run_id.outputs.workflow_run_id }}
+    steps:
+      - name: Get latest "Build and Test" workflow run ID
+        id: get_workflow_run_id
+        run: |
+          API_URL="https://api.github.com/repos/FNewel/keepxp/actions/workflows/build.yml/runs?per_page=1"
+          RUN_ID=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" "$API_URL" | jq -r '.workflow_runs[0].id')
+          echo "Found workflow run ID: $RUN_ID"
+          echo "workflow_run_id=$RUN_ID" >> $GITHUB_OUTPUT
+
+      - name: Download artifacts from "Build and Test" workflow
+        uses: actions/download-artifact@v4.1.8
+        with:
+          run-id: ${{ steps.get_workflow_run_id.outputs.workflow_run_id }}
+          github-token: ${{ secrets.GIT_TOKEN }}
+          name: Artifacts
+          path: ./
+
+      - name: Find JAR files
+        id: find_jar_files
+        run: |
+          JAR_FILES=$(find ./build/libs/ -name "keep-xp-*.jar")
+          FILE_LIST=$(echo "$JAR_FILES" | sed 's/^\.\/build\/libs\///' | tr '\n' ',')
+          FILE_LIST="${FILE_LIST%,}"
+          FILE_LIST=$(echo "$FILE_LIST" | sed 's/,/","/g' | sed 's/^/\"/' | sed 's/$/\"/')
+          echo "jar_files=[$FILE_LIST]" >> $GITHUB_OUTPUT
+
+  publish:
+    needs: extract_jar_files
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        jar_file: ${{ fromJson(needs.extract_jar_files.outputs.jar_files) }}
+    steps:
+      - name: Download artifacts from build job
+        uses: actions/download-artifact@v4.1.8
+        with:
+          run-id: ${{ needs.extract_jar_files.outputs.workflow_run_id }}
+          github-token: ${{ secrets.GIT_TOKEN }}
+          name: Artifacts
+          path: ./
+
+      - name: Extract mod version and game versions
+        id: extract_versions
+        run: |
+          jar_file="${{ matrix.jar_file }}"
+          mod_version=$(basename "$jar_file" | sed -E 's/keep-xp-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          MC_VERSIONS=$(echo "$jar_file" | grep -oP '(?<=\+)\d+\.\d+(\.\d+)?(-\d+\.\d+(\.\d+)?)*')
+          IFS='-' read -r -a mc_versions_array <<< "$MC_VERSIONS"
+
+          game_versions=""
+          if [[ ${#mc_versions_array[@]} -eq 1 ]]; then
+            game_versions="${mc_versions_array[0]}"
+          else
+            LOWEST_VERSION="${mc_versions_array[0]}"
+            HIGHEST_VERSION="${mc_versions_array[1]}"
+            game_versions="$LOWEST_VERSION-$HIGHEST_VERSION"
+          fi
+
+          echo "mod_version=$mod_version" >> $GITHUB_OUTPUT
+          echo "game_version=$game_versions" >> $GITHUB_OUTPUT
+          echo "file=$jar_file" >> $GITHUB_OUTPUT
+
+      - name: Publish to Modrinth
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          fail-mode: warn
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          changelog-file: ./CHANGELOG.md
+          files: ./build/libs/${{ steps.extract_versions.outputs.file }}
+          name: Keep XP ${{ steps.extract_versions.outputs.game_version }} v${{ steps.extract_versions.outputs.mod_version }}
+
+      - name: Publish to Github
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          fail-mode: warn
+          github-token: ${{ secrets.GIT_TOKEN }}
+          changelog-file: ./CHANGELOG.md
+          files: ./build/libs/${{ steps.extract_versions.outputs.file }}
+          name: Keep XP v${{ steps.extract_versions.outputs.mod_version }}

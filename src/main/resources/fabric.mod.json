@@ -25,11 +25,11 @@
   "depends": {
     "fabricloader": ">=0.15",
     "minecraft": "${mcdep}",
-    "fabric-api": "*"
+    "${fabric_api_id}": "*"
   },
   "custom": {
     "mc-publish": {
-      "modrinth": "etdmfNib"
+      "modrinth": "KGGLzw1p"
     }
   }
 }

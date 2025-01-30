@@ -1,1 +1,3 @@
-Moved project to Stonecutter for better multi-version support.
+- Updated workflow with publish action (Manually triggered publish)
+- Updated workflow with build and test action (Automatically (or manually) triggered build and test)
+- Added versions.json file to store Minecraft versions

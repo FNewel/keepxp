@@ -1,5 +1,6 @@
 package io.github.fnewell.mixin;
 
+import io.github.fnewell.KeepXP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,6 +12,8 @@ import java.lang.reflect.Method;
 
 @Mixin(PlayerEntity.class)
 public class XpOnDeath {
+
+    // TODO: Change in 1.18.2 -> 1.19
 
     //? if >=1.21.4 {
     @Inject(method = "getExperienceToDrop", at = @At("RETURN"), cancellable = true)
@@ -25,8 +28,13 @@ public class XpOnDeath {
     private void handleXpDrop(CallbackInfoReturnable<Integer> info) {
         PlayerEntity player = (PlayerEntity)(Object)this;
 
-        // Try to check if Permissions API is found
         try {
+            // Check if KeepXP override is turned on
+            if (KeepXP.keepXPoverride) {
+                throw new Exception();
+            }
+
+            // Try to check if Permissions API is found
             Class<?> permissionsClass = Class.forName("me.lucko.fabric.api.permissions.v0.Permissions");
             Method checkMethod = permissionsClass.getMethod("check", Entity.class, String.class);
             boolean hasPermission = (boolean)checkMethod.invoke(null, player, "keep.xp");
