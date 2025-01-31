@@ -79,19 +79,47 @@ jobs:
           for JAR_FILE in $JAR_FILES; do
             JAR_NAME=$(basename "$JAR_FILE")
             MC_VERSIONS=$(echo "$JAR_NAME" | grep -oP '(?<=\+)\d+\.\d+(\.\d+)?(-\d+\.\d+(\.\d+)?)*')
-
+          
             if [[ $MC_VERSIONS == *"-"* ]]; then
+              echo "++MC_VERSIONS is a range"
               LOWEST_VERSION=$(echo "$MC_VERSIONS" | cut -d'-' -f1)
               HIGHEST_VERSION=$(echo "$MC_VERSIONS" | cut -d'-' -f2)
-
+          
               for VERSION in $AVAILABLE_VERSIONS; do
-                if semver -r "$LOWEST_VERSION - $HIGHEST_VERSION" "$VERSION"; then # Použitie semver range
+                CMP_VERSION=$VERSION
+              
+                # If version missing patch version (e.g. 1.20 instead of 1.20.0), add it
+                if [[ $VERSION == *"."* ]]; then
+                  if [[ $VERSION == *"."* ]]; then
+                    PATCH_VERSION=$(echo "$VERSION" | cut -d'.' -f3)
+                    if [[ $PATCH_VERSION == "" ]]; then
+                      echo "Adding patch version to $VERSION"
+                      CMP_VERSION="$VERSION.0"
+                    fi
+                  fi
+                fi
+              
+                echo "Comparing $LOWEST_VERSION - $HIGHEST_VERSION with $CMP_VERSION"
+                if semver -r "$LOWEST_VERSION - $HIGHEST_VERSION" "$CMP_VERSION"; then
                   VERSION_ARRAY+="\"$VERSION\","
+              
+                  # Remove the version from the list of available versions
+                  #echo "Removing $VERSION from available versions"
+                  #echo "Available versions: $AVAILABLE_VERSIONS"
+                  #AVAILABLE_VERSIONS=$(echo "$AVAILABLE_VERSIONS" | grep -v "^$VERSION$")
+                  #echo "Available versions after removal: $AVAILABLE_VERSIONS"
                 fi
               done
             else
               if echo "$AVAILABLE_VERSIONS" | grep -q "$MC_VERSIONS"; then
+                echo "--MC_VERSIONS is a single version"
                 VERSION_ARRAY+="\"$MC_VERSIONS\","
+              
+                # Remove the version from the list of available versions
+                #echo "Removing $VERSION from available versions"
+                #echo "Available versions: $AVAILABLE_VERSIONS"
+                #AVAILABLE_VERSIONS=$(echo "$AVAILABLE_VERSIONS" | grep -v "^$MC_VERSIONS$")
+                #echo "Available versions after removal: $AVAILABLE_VERSIONS"
               fi
             fi
           done

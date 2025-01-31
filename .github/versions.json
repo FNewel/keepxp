@@ -11,10 +11,6 @@
     "java_version": "21",
     "fabric_api": "0.115.0"
   },
-  "1.21": {
-    "java_version": "21",
-    "fabric_api": "0.102.0"
-  },
   "1.20.6": {
     "java_version": "21",
     "fabric_api": "0.100.8"
@@ -35,10 +31,6 @@
     "java_version": "17",
     "fabric_api": "0.92.3"
   },
-  "1.20": {
-    "java_version": "17",
-    "fabric_api": "0.83.0"
-  },
   "1.19.4": {
     "java_version": "17",
     "fabric_api": "0.87.2"
@@ -46,5 +38,21 @@
   "1.19.3": {
     "java_version": "17",
     "fabric_api": "0.76.1"
+  },
+  "1.19.2": {
+    "java_version": "17",
+    "fabric_api": "0.77.0"
+  },
+  "1.19.1": {
+    "java_version": "17",
+    "fabric_api": "0.58.5"
+  },
+  "1.19": {
+    "java_version": "17",
+    "fabric_api": "0.58.0"
+  },
+  "1.18.2": {
+    "java_version": "17",
+    "fabric_api": "0.77.0"
   }
 }

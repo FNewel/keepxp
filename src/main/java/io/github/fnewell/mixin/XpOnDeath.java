@@ -13,7 +13,25 @@ import java.lang.reflect.Method;
 @Mixin(PlayerEntity.class)
 public class XpOnDeath {
 
-    // TODO: Change in 1.18.2 -> 1.19
+    // >=1.21.4
+    // int getExperienceToDrop( ServerWorld world, Entity attacker)
+    // int getExperienceToDrop( ServerWorld world)
+
+    // <1.21.4
+    // int getXpToDrop( ServerWorld world, Entity attacker)
+    // int getXpToDrop( ServerWorld world)
+
+    // 1.21-1.21.1
+    // int getXpToDrop( ServerWorld world, Entity attacker)
+    // int getXpToDrop( )
+
+    // <=1.20.6
+    // missing
+    // int getXpToDrop( )
+
+    // >=1.16.5 <=1.18.2
+    // missing
+    // int getXpToDrop( PlayerEntity player)
 
     //? if >=1.21.4 {
     @Inject(method = "getExperienceToDrop", at = @At("RETURN"), cancellable = true)
