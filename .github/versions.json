@@ -54,13 +54,5 @@
   "1.18.2": {
     "java_version": "17",
     "fabric_api": "0.77.0"
-  },
-  "1.18.1": {
-    "java_version": "17",
-    "fabric_api": "0.46.6"
-  },
-  "1.18": {
-    "java_version": "17",
-    "fabric_api": "0.44.0"
   }
 }
