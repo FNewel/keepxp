@@ -46,10 +46,12 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${deps["fabric_loader"]}")
     modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:${deps["fabric_api"]}")
 
+    val fapiCommandApi = if (stonecutter.eval(mcVersion, ">=1.19")) "fabric-command-api-v2" else "fabric-command-api-v1"
+
     fapi(
         // Add modules from https://github.com/FabricMC/fabric
         "fabric-lifecycle-events-v1",
-        "fabric-command-api-v2"
+        fapiCommandApi,
     /*"fabric-resource-loader-v0",
         "fabric-key-binding-api-v1",
         "fabric-command-api-v2",*/
