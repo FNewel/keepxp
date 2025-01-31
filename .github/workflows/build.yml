@@ -104,10 +104,10 @@ jobs:
                   VERSION_ARRAY+="\"$VERSION\","
               
                   # Remove the version from the list of available versions
-                  echo "Removing $VERSION from available versions"
-                  echo "Available versions: $AVAILABLE_VERSIONS"
-                  AVAILABLE_VERSIONS=$(echo "$AVAILABLE_VERSIONS" | grep -v "^$VERSION$")
-                  echo "Available versions after removal: $AVAILABLE_VERSIONS"
+                  #echo "Removing $VERSION from available versions"
+                  #echo "Available versions: $AVAILABLE_VERSIONS"
+                  #AVAILABLE_VERSIONS=$(echo "$AVAILABLE_VERSIONS" | grep -v "^$VERSION$")
+                  #echo "Available versions after removal: $AVAILABLE_VERSIONS"
                 fi
               done
             else
@@ -116,10 +116,10 @@ jobs:
                 VERSION_ARRAY+="\"$MC_VERSIONS\","
               
                 # Remove the version from the list of available versions
-                echo "Removing $VERSION from available versions"
-                echo "Available versions: $AVAILABLE_VERSIONS"
-                AVAILABLE_VERSIONS=$(echo "$AVAILABLE_VERSIONS" | grep -v "^$MC_VERSIONS$")
-                echo "Available versions after removal: $AVAILABLE_VERSIONS"
+                #echo "Removing $VERSION from available versions"
+                #echo "Available versions: $AVAILABLE_VERSIONS"
+                #AVAILABLE_VERSIONS=$(echo "$AVAILABLE_VERSIONS" | grep -v "^$MC_VERSIONS$")
+                #echo "Available versions after removal: $AVAILABLE_VERSIONS"
               fi
             fi
           done
