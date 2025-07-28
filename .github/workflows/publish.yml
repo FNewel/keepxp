@@ -24,15 +24,23 @@ jobs:
           run-id: ${{ steps.get_workflow_run_id.outputs.workflow_run_id }}
           github-token: ${{ secrets.GIT_TOKEN }}
           name: Artifacts
-          path: ./
+          path: ./downloaded
+
+      - name: List downloaded contents
+        run: |
+          echo "==== Downloaded Artifact Contents ===="
+          find ./downloaded -type f
 
       - name: Find JAR files
         id: find_jar_files
         run: |
-          JAR_FILES=$(find ./versions -type f -path "*/build/libs/*.jar" -name "keepxp*.jar" ! -name "*-sources.jar")
-          FILE_LIST=$(echo "$JAR_FILES" | tr '\n' ',')
-          FILE_LIST="${FILE_LIST%,}"
-          FILE_LIST=$(echo "$FILE_LIST" | sed 's/,/","/g' | sed 's/^/\"/' | sed 's/$/\"/')
+          echo "==== Searching for JARs ===="
+          JAR_FILES=$(find ./downloaded -type f -path "*/build/libs/*.jar" -name "keepxp*.jar" ! -name "*-sources.jar")
+          echo "Found:"
+          echo "$JAR_FILES"
+          
+          FILE_LIST=$(echo "$JAR_FILES" | tr '\n' ',' | sed 's/,/","/g' | sed 's/^/\"/' | sed 's/$/\"/')
+          echo "Final JSON array: [$FILE_LIST]"
           echo "jar_files=[$FILE_LIST]" >> $GITHUB_OUTPUT
 
   publish:
@@ -42,20 +50,40 @@ jobs:
       matrix:
         jar_file: ${{ fromJson(needs.extract_jar_files.outputs.jar_files) }}
     steps:
+      - name: Print selected JAR file
+        run: |
+          echo "JAR file from matrix: ${{ matrix.jar_file }}"
+
       - name: Download artifacts from build job
         uses: actions/download-artifact@v4.1.8
         with:
           run-id: ${{ needs.extract_jar_files.outputs.workflow_run_id }}
           github-token: ${{ secrets.GIT_TOKEN }}
           name: Artifacts
-          path: ./
+          path: ./downloaded
+
+      - name: Confirm downloaded files
+        run: |
+          echo "==== Confirming files after artifact download ===="
+          find ./downloaded -type f
 
       - name: Extract mod version and game versions
         id: extract_versions
         run: |
-          jar_file="${{ matrix.jar_file }}"
-          mod_version=$(basename "$jar_file" | sed -E 's/keep-xp-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-          MC_VERSIONS=$(echo "$jar_file" | grep -oP '(?<=\+)\d+\.\d+(\.\d+)?(-\d+\.\d+(\.\d+)?)*')
+          jar_file="./downloaded/${{ matrix.jar_file }}"
+          echo "Selected JAR path: $jar_file"
+
+          if [[ ! -f "$jar_file" ]]; then
+            echo "::error::JAR file does not exist: $jar_file"
+            exit 1
+          fi
+
+          mod_version=$(basename "$jar_file" | sed -E 's/keepxp-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          echo "Extracted mod_version: $mod_version"
+
+          MC_VERSIONS=$(basename "$jar_file" | grep -oP '(?<=\+)\d+\.\d+(\.\d+)?(-\d+\.\d+(\.\d+)?)*')
+          echo "Extracted MC_VERSIONS: $MC_VERSIONS"
+
           IFS='-' read -r -a mc_versions_array <<< "$MC_VERSIONS"
 
           game_versions=""
@@ -76,7 +104,7 @@ jobs:
         with:
           fail-mode: warn
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-          changelog-file: ./CHANGELOG.md
+          changelog-file: ./downloaded/CHANGELOG.md
           files: ${{ steps.extract_versions.outputs.file }}
           name: Keep XP ${{ steps.extract_versions.outputs.game_version }} v${{ steps.extract_versions.outputs.mod_version }}
 
@@ -85,6 +113,6 @@ jobs:
         with:
           fail-mode: warn
           github-token: ${{ secrets.GIT_TOKEN }}
-          changelog-file: ./CHANGELOG.md
+          changelog-file: ./downloaded/CHANGELOG.md
           files: ${{ steps.extract_versions.outputs.file }}
           name: Keep XP v${{ steps.extract_versions.outputs.mod_version }}
