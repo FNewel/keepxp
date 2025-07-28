@@ -35,7 +35,7 @@ jobs:
         id: find_jar_files
         run: |
           echo "==== Searching for JARs ===="
-          JAR_FILES=$(find ./downloaded -type f -path "*/build/libs/*.jar" -name "keepxp*.jar" ! -name "*-sources.jar")
+          JAR_FILES=$(find ./downloaded -type f -path "*/build/libs/*.jar" -name "keep-xp*.jar" ! -name "*-sources.jar")
           echo "Found:"
           echo "$JAR_FILES"
           
@@ -78,7 +78,7 @@ jobs:
             exit 1
           fi
 
-          mod_version=$(basename "$jar_file" | sed -E 's/keepxp-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          mod_version=$(basename "$jar_file" | sed -E 's/keep-xp-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
           echo "Extracted mod_version: $mod_version"
 
           MC_VERSIONS=$(basename "$jar_file" | grep -oP '(?<=\+)\d+\.\d+(\.\d+)?(-\d+\.\d+(\.\d+)?)*')
