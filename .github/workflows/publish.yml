@@ -35,7 +35,7 @@ jobs:
         id: find_jar_files
         run: |
           echo "==== Searching for JARs ===="
-          JAR_FILES=$(find ./downloaded -type f -path "*/build/libs/*.jar" -name "keep-xp*.jar" ! -name "*-sources.jar")
+          JAR_FILES=$(find ./downloaded -type f -path "*/build/libs/*.jar" -name "keep-xp*.jar" ! -name "*-sources.jar" | awk NF)
           echo "Found:"
           echo "$JAR_FILES"
           
@@ -49,6 +49,8 @@ jobs:
     strategy:
       matrix:
         jar_file: ${{ fromJson(needs.extract_jar_files.outputs.jar_files) }}
+    name: Publish (${{ matrix.jar_file && matrix.jar_file | split('/') | last }})
+
     steps:
       - name: Print selected JAR file
         run: |
@@ -70,7 +72,7 @@ jobs:
       - name: Extract mod version and game versions
         id: extract_versions
         run: |
-          jar_file="./downloaded/${{ matrix.jar_file }}"
+          jar_file="${{ matrix.jar_file }}"
           echo "Selected JAR path: $jar_file"
 
           if [[ ! -f "$jar_file" ]]; then
