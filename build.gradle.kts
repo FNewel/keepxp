@@ -4,7 +4,7 @@ plugins {
     // id("me.modmuss50.mod-publish-plugin")
 }
 
-version = "${property("mod.version")}+${stonecutter.current.version}"
+version = "${property("mod.version")}+${property("mod.mc_title")}"
 group = property("mod.group") as String
 base.archivesName = property("mod.id") as String
 
@@ -72,7 +72,7 @@ tasks {
         val props = mapOf(
             "id" to project.property("mod.id"),
             "name" to project.property("mod.id"),
-            "version" to project.property("mod.id"),
+            "version" to project.property("mod.mc_targets"),
             "minecraft" to project.property("mod.mc_dep")
         )
 
