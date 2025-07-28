@@ -30,7 +30,7 @@ jobs:
         id: find_jar_files
         run: |
           JAR_FILES=$(find ./versions -type f -path "*/build/libs/*.jar" -name "keepxp*.jar" ! -name "*-sources.jar")
-          FILE_LIST=$(echo "$JAR_FILES" | sed 's/^\.\/versions\/.*\/build\/libs\///' | tr '\n' ',')
+          FILE_LIST=$(echo "$JAR_FILES" | tr '\n' ',')
           FILE_LIST="${FILE_LIST%,}"
           FILE_LIST=$(echo "$FILE_LIST" | sed 's/,/","/g' | sed 's/^/\"/' | sed 's/$/\"/')
           echo "jar_files=[$FILE_LIST]" >> $GITHUB_OUTPUT
