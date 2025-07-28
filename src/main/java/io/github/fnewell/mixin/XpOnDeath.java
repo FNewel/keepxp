@@ -34,12 +34,12 @@ public class XpOnDeath {
     // int getXpToDrop( PlayerEntity player)
 
     //? if >=1.21.4 {
-    @Inject(method = "getExperienceToDrop", at = @At("RETURN"), cancellable = true)
+    /*@Inject(method = "getExperienceToDrop", at = @At("RETURN"), cancellable = true)
     private void noXpToDrop1214(CallbackInfoReturnable<Integer> info) {
         handleXpDrop(info);
     }
-    //?} else
-    /*@Inject(method = "getXpToDrop", at = @At("RETURN"), cancellable = true)*/
+    *///?} else
+    @Inject(method = "getXpToDrop", at = @At("RETURN"), cancellable = true)
     /*private void noXpToDrop1213(CallbackInfoReturnable<Integer> info) { handleXpDrop(info); };*/
 
 
