@@ -34,11 +34,11 @@ jobs:
         id: find_jar_files
         run: |
           echo "==== Searching for JARs ===="
-          JAR_FILES=$(find ./downloaded -type f -path "*/build/libs/*.jar" -name "keep-xp*.jar" ! -name "*-sources.jar" -exec basename {} \;)
+          JAR_FILES=$(find ./downloaded -type f -path "*/build/libs/*.jar" -name "keep-xp*.jar" ! -name "*-sources.jar" -exec basename {} \; | grep .)
           echo "Found:"
           echo "$JAR_FILES"
-
-          FILE_LIST=$(echo "$JAR_FILES" | awk NF | tr '\n' ',' | sed 's/,/","/g' | sed 's/^/\"/' | sed 's/$/\"/')
+          
+          FILE_LIST=$(echo "$JAR_FILES" | awk NF | paste -sd ',' - | sed 's/,/","/g' | sed 's/^/\"/' | sed 's/$/\"/')
           echo "Final JSON array: [$FILE_LIST]"
           echo "jar_files=[$FILE_LIST]" >> $GITHUB_OUTPUT
 
