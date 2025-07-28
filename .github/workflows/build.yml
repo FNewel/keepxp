@@ -3,10 +3,10 @@ name: Build and Test
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -39,15 +39,16 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build
-        run: ./gradlew chiseledBuild
+        run: ./gradlew build
 
       - name: Capture build artifacts
         uses: actions/upload-artifact@v4.6.0
         with:
           name: Artifacts
           path: |
-            build/libs/
             CHANGELOG.md
+            ${{ github.workspace }}/versions/**/build/libs/*.jar
+          if-no-files-found: error
 
   generate-matrix:
     runs-on: ubuntu-latest
@@ -70,7 +71,7 @@ jobs:
       - name: Extract Minecraft versions from JAR names
         id: extract-versions
         run: |
-          JAR_FILES=$(find build/libs -name "*.jar")
+          JAR_FILES=$(find versions -type f -path "*/build/libs/*.jar" ! -name "*-sources.jar")
           VERSION_ARRAY="["
 
           VERSIONS_JSON=$(cat .github/versions.json)
@@ -166,7 +167,7 @@ jobs:
 
       - name: Find and copy the correct JAR
         run: |
-          JAR_FILES=$(find build/libs -name "*.jar")
+          JAR_FILES=$(find versions -type f -path "*/build/libs/*.jar" ! -name "*-sources.jar")
           for JAR_FILE in $JAR_FILES; do
             JAR_NAME=$(basename "$JAR_FILE")
             MC_VERSIONS=$(echo "$JAR_NAME" | grep -oP '(?<=\+)\d+\.\d+(\.\d+)?(-\d+\.\d+(\.\d+)?)*')
