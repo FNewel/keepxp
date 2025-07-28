@@ -49,7 +49,7 @@ jobs:
     strategy:
       matrix:
         jar_file: ${{ fromJson(needs.extract_jar_files.outputs.jar_files) }}
-    name: Publish (${{ matrix.jar_file && matrix.jar_file | split('/') | last }})
+    name: Publish (${{ matrix.jar_file | split('/') | last }})
 
     steps:
       - name: Print selected JAR file
