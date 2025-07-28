@@ -15,10 +15,9 @@ jobs:
         run: |
           API_URL="https://api.github.com/repos/FNewel/keepxp/actions/workflows/build.yml/runs?per_page=1"
           RUN_ID=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" "$API_URL" | jq -r '.workflow_runs[0].id')
-          echo "Found workflow run ID: $RUN_ID"
           echo "workflow_run_id=$RUN_ID" >> $GITHUB_OUTPUT
 
-      - name: Download artifacts from "Build and Test" workflow
+      - name: Download artifacts
         uses: actions/download-artifact@v4.1.8
         with:
           run-id: ${{ steps.get_workflow_run_id.outputs.workflow_run_id }}
@@ -31,15 +30,15 @@ jobs:
           echo "==== Downloaded Artifact Contents ===="
           find ./downloaded -type f
 
-      - name: Find JAR files
+      - name: Find JAR file names
         id: find_jar_files
         run: |
           echo "==== Searching for JARs ===="
-          JAR_FILES=$(find ./downloaded -type f -path "*/build/libs/*.jar" -name "keep-xp*.jar" ! -name "*-sources.jar" | awk NF)
+          JAR_FILES=$(find ./downloaded -type f -path "*/build/libs/*.jar" -name "keep-xp*.jar" ! -name "*-sources.jar" -exec basename {} \;)
           echo "Found:"
           echo "$JAR_FILES"
-          
-          FILE_LIST=$(echo "$JAR_FILES" | tr '\n' ',' | sed 's/,/","/g' | sed 's/^/\"/' | sed 's/$/\"/')
+
+          FILE_LIST=$(echo "$JAR_FILES" | awk NF | tr '\n' ',' | sed 's/,/","/g' | sed 's/^/\"/' | sed 's/$/\"/')
           echo "Final JSON array: [$FILE_LIST]"
           echo "jar_files=[$FILE_LIST]" >> $GITHUB_OUTPUT
 
@@ -49,14 +48,10 @@ jobs:
     strategy:
       matrix:
         jar_file: ${{ fromJson(needs.extract_jar_files.outputs.jar_files) }}
-    name: Publish (${{ matrix.jar_file | split('/') | last }})
+    name: Publish (${{ matrix.jar_file }})
 
     steps:
-      - name: Print selected JAR file
-        run: |
-          echo "JAR file from matrix: ${{ matrix.jar_file }}"
-
-      - name: Download artifacts from build job
+      - name: Download artifacts
         uses: actions/download-artifact@v4.1.8
         with:
           run-id: ${{ needs.extract_jar_files.outputs.workflow_run_id }}
@@ -66,40 +61,38 @@ jobs:
 
       - name: Confirm downloaded files
         run: |
-          echo "==== Confirming files after artifact download ===="
+          echo "==== Confirming downloaded files ===="
           find ./downloaded -type f
 
       - name: Extract mod version and game versions
         id: extract_versions
         run: |
-          jar_file="${{ matrix.jar_file }}"
-          echo "Selected JAR path: $jar_file"
+          JAR_FILE_NAME="${{ matrix.jar_file }}"
+          echo "Searching for: $JAR_FILE_NAME"
 
-          if [[ ! -f "$jar_file" ]]; then
-            echo "::error::JAR file does not exist: $jar_file"
+          JAR_PATH=$(find ./downloaded -type f -name "$JAR_FILE_NAME" | head -n 1)
+          echo "Located JAR path: $JAR_PATH"
+
+          if [[ ! -f "$JAR_PATH" ]]; then
+            echo "::error::JAR file does not exist: $JAR_PATH"
             exit 1
           fi
 
-          mod_version=$(basename "$jar_file" | sed -E 's/keep-xp-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          mod_version=$(basename "$JAR_PATH" | sed -E 's/keep-xp-([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
           echo "Extracted mod_version: $mod_version"
 
-          MC_VERSIONS=$(basename "$jar_file" | grep -oP '(?<=\+)\d+\.\d+(\.\d+)?(-\d+\.\d+(\.\d+)?)*')
-          echo "Extracted MC_VERSIONS: $MC_VERSIONS"
-
+          MC_VERSIONS=$(basename "$JAR_PATH" | grep -oP '(?<=\+)\d+\.\d+(\.\d+)?(-\d+\.\d+(\.\d+)?)*')
           IFS='-' read -r -a mc_versions_array <<< "$MC_VERSIONS"
 
-          game_versions=""
           if [[ ${#mc_versions_array[@]} -eq 1 ]]; then
             game_versions="${mc_versions_array[0]}"
           else
-            LOWEST_VERSION="${mc_versions_array[0]}"
-            HIGHEST_VERSION="${mc_versions_array[1]}"
-            game_versions="$LOWEST_VERSION-$HIGHEST_VERSION"
+            game_versions="${mc_versions_array[0]}-${mc_versions_array[1]}"
           fi
 
           echo "mod_version=$mod_version" >> $GITHUB_OUTPUT
           echo "game_version=$game_versions" >> $GITHUB_OUTPUT
-          echo "file=$jar_file" >> $GITHUB_OUTPUT
+          echo "file=$JAR_PATH" >> $GITHUB_OUTPUT
 
       - name: Publish to Modrinth
         uses: Kir-Antipov/mc-publish@v3.3
