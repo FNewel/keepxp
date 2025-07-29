@@ -25,7 +25,8 @@
   "depends": {
     "fabricloader": ">=0.16",
     "minecraft": "${minecraft}",
-    "${fabricid}": "*"
+    "fabric-lifecycle-events-v1": "*",
+    "${fabricomapi}": "*"
   },
   "custom": {
     "mc-publish": {
