@@ -142,10 +142,14 @@ jobs:
       - name: Parse versions.json for current version
         id: version-info
         run: |
-          JAVA_VERSION=$(cat .github/versions.json | jq -r ".[\"${{ matrix.version }}\"].java_version")
-          FABRIC_API=$(cat .github/versions.json | jq -r ".[\"${{ matrix.version }}\"].fabric_api")
+          VERSION_JSON=$(cat .github/versions.json | jq -r ".\"${{ matrix.version }}\"")
+          JAVA_VERSION=$(echo "$VERSION_JSON" | jq -r ".java_version")
+          FABRIC_API=$(echo "$VERSION_JSON" | jq -r ".fabric_api")
+          EXTRA_MODS=$(echo "$VERSION_JSON" | jq -c ".extra_mods // empty")
+
           echo "java_version=$JAVA_VERSION" >> $GITHUB_OUTPUT
           echo "fabric_api=$FABRIC_API" >> $GITHUB_OUTPUT
+          echo "extra_mods=$EXTRA_MODS" >> $GITHUB_OUTPUT
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4.1.8
@@ -161,6 +165,14 @@ jobs:
 
       - name: Create mods directory
         run: mkdir -p run/mods
+      
+      - name: Download extra mods for ${{ matrix.version }}
+        if: ${{ steps.version-info.outputs.extra_mods != '' }}
+        run: |
+          echo '${{ steps.version-info.outputs.extra_mods }}' | jq -r '.[]' | while read -r url; do
+            echo "Downloading $url"
+            curl -L "$url" -o "run/mods/$(basename "$url")"
+          done
 
       - name: Install semver
         run: npm install semver -g
