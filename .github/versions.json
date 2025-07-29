@@ -49,7 +49,11 @@
   },
   "1.19.1": {
     "java_version": "17",
-    "fabric_api": "0.58.5"
+    "fabric_api": "0.58.5",
+    "extra_mods": [
+      "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-lifecycle-events-v1/2.1.0%2B33fbc73895/fabric-lifecycle-events-v1-2.1.0%2B33fbc73895.jar",
+      "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-command-api-v2/2.1.5%2B0c17ea9695/fabric-command-api-v2-2.1.5%2B0c17ea9695.jar"
+    ]
   },
   "1.19": {
     "java_version": "17",
@@ -57,6 +61,10 @@
   },
   "1.18.2": {
     "java_version": "17",
-    "fabric_api": "0.77.0"
+    "fabric_api": "0.77.0",
+    "extra_mods": [
+      "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-lifecycle-events-v1/2.1.1%2Bcc71601c60/fabric-lifecycle-events-v1-2.1.1%2Bcc71601c60.jar",
+      "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-command-api-v1/1.1.10%2Bd7c144a860/fabric-command-api-v1-1.1.10%2Bd7c144a860.jar"
+    ]
   }
 }
