@@ -8,6 +8,7 @@ version = "${property("mod.version")}+${property("mod.mc_title")}"
 group = property("mod.group") as String
 base.archivesName = property("mod.id") as String
 val fapid = if(stonecutter.eval(stonecutter.current.version, ">=1.19.3")) "fabric-api" else "fabric"
+val fapcomapi = if (stonecutter.eval(stonecutter.current.version, ">=1.19")) "fabric-command-api-v2" else "fabric-command-api-v1"
 
 repositories {
     /**
@@ -69,14 +70,14 @@ tasks {
         inputs.property("name", project.property("mod.name"))
         inputs.property("version", project.property("mod.version"))
         inputs.property("minecraft", project.property("mod.mc_dep"))
-        inputs.property("fabricid", fapid)
+        inputs.property("fabricomapi", fapcomapi)
 
         val props = mapOf(
             "id" to project.property("mod.id"),
             "name" to "Keep XP",
             "version" to project.property("mod.version"),
             "minecraft" to project.property("mod.mc_dep"),
-            "fabricid" to fapid
+            "fabricomapi" to fapcomapi
         )
 
         filesMatching("fabric.mod.json") { expand(props) }
