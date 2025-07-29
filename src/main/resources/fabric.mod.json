@@ -24,7 +24,8 @@
   ],
   "depends": {
     "fabricloader": ">=0.16",
-    "minecraft": "${minecraft}"
+    "minecraft": "${minecraft}",
+    "${fabricid}": "*"
   },
   "custom": {
     "mc-publish": {
