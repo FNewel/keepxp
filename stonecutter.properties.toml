@@ -4,7 +4,7 @@ mod.name = "Keep XP"
 mod.group = "io.github.fnewel"
 mod.version = "2.0.0"
 
-deps.fabric_loader = "0.20.1"
+deps.fabric_loader = "0.19.3"
 # lucko fabric-permissions-api (v0), compileOnly - https://github.com/lucko/fabric-permissions-api/releases
 deps.permissions_api = "0.7.0"
 loomx.loom_version = "1.19-SNAPSHOT"
