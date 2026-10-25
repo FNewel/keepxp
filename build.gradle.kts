@@ -47,15 +47,15 @@ dependencies {
 
     // Use `mod{dependency type}` even on 26.1+ - loom-back-compat converts them
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
-    fapi("fabric-lifecycle-events-v1", "fabric-resource-loader-v0", "fabric-content-registries-v0", "fabric-registry-sync-v0")
+    fapi("fabric-lifecycle-events-v1", "fabric-command-api-v2", "fabric-permission-api-v1")
+
+    // Older permission API (lucko v0) for permission mods that only implement it
+    // Not bundled, only compiled
+    compileOnly("me.lucko:fabric-permissions-api:${property("deps.permissions_api")}")
 }
 
 loom {
     fabricModJsonPath = rootProject.file("src/main/resources/fabric.mod.json") // Useful for interface injection
-    accessWidenerPath = sc.process(
-        rootProject.file("src/main/resources/template.ct"),
-        "build/processed.ct"
-    )
 
     decompilerOptions.named("vineflower") {
         options.put("mark-corresponding-synthetics", "1") // Adds names to lambdas - useful for mixins

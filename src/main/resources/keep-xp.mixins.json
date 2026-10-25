@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "io.github.fnewel.mixin",
+  "compatibilityLevel": "${java}",
+  "mixins": [
+    "PlayerMixin",
+    "ServerPlayerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
